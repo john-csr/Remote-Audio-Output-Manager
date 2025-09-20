@@ -1,0 +1,62 @@
+
+Audio Output Manager  
+====================
+
+Audio Output Manager is a Windows-based HTA utility that enables remote management of audio playback devices via PowerShell. It supports module installation, device enumeration, and default device configuration on networked machines.
+
+Author: John C.
+
+------------------------------------------------------------
+
+Instructions for Use  
+--------------------
+
+1. Launch the Tool  
+   Open the `.hta` file to start the Audio Output Manager interface.
+
+2. Enter the Remote Computer Name  
+   In the field labeled "Computer Name", enter the hostname or IP address of the target machine.
+
+3. Install Required Module  
+   Click "Install Module" to remotely install the AudioDeviceCmdlets PowerShell module. This step is required before any audio device operations can be performed.
+
+4. Verify Module Installation  
+   Use the "Verify Module" button to confirm that the module is successfully installed on the remote machine.
+
+5. List Playback Devices  
+   Click "List Playback Devices" to retrieve all available playback devices from the remote system.
+
+6. Set Default Playback Device  
+   Enter the name of the desired device in the "Device Name" field and click "Set Default Device" to switch the default audio output.
+
+------------------------------------------------------------
+
+Use Case Scenarios  
+------------------
+
+Scenario 1: Switching Audio Output from Laptop Speakers to External Display  
+A user reported that audio was only playing through the laptop’s built-in Realtek speakers, despite having an LG monitor connected via HDMI. Using Audio Output Manager, a technician:
+- Connected to the user's machine remotely
+- Installed the AudioDeviceCmdlets module
+- Listed available playback devices
+- Identified the LG display as an available output
+- Set the LG display as the default playback device
+
+This resolved the issue without requiring physical access to the machine.
+
+Scenario 2: Preconfiguring Audio Devices for Conference Rooms  
+Before a scheduled meeting, technicians can remotely:
+- Install the audio module on conference room PCs
+- Verify that the correct speaker system is available
+- Set the external speaker system as the default device
+
+This ensures consistent audio output across all rooms without manual setup.
+
+Scenario 3: Troubleshooting Audio Failures in Virtual Desktop Environments  
+In VDI setups where users experience inconsistent audio routing:
+- Technicians can use the tool to inspect available playback devices
+- Identify misrouted or inactive endpoints
+- Set the correct device as default to restore functionality
+
+------------------------------------------------------------
+
