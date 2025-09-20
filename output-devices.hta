@@ -1,0 +1,115 @@
+<html>
+<head>
+  <title>Audio Output Manager</title>
+  <HTA:APPLICATION
+    ID="AudioDeviceManager"
+    APPLICATIONNAME="AudioOutputManager"
+    BORDER="thin"
+    BORDERSTYLE="normal"
+    CAPTION="yes"
+    SHOWINTASKBAR="yes"
+    SINGLEINSTANCE="yes"
+    WINDOWSTATE="normal"
+  >
+  <script language="VBScript">
+    Function RunPowerShell(command)
+      Dim shell, exec, output, line
+      Set shell = CreateObject("WScript.Shell")
+      Set exec = shell.Exec(command)
+
+      output = ""
+      Do While Not exec.StdOut.AtEndOfStream
+        line = exec.StdOut.ReadLine()
+        output = output & line & vbCrLf
+      Loop
+
+      RunPowerShell = output
+    End Function
+
+    Sub InstallModule
+      Dim computerName, command, result
+      computerName = document.getElementById("computerName").value
+      If computerName = "" Then
+        MsgBox "Please enter a computer name.", vbExclamation
+        Exit Sub
+      End If
+
+      command = "powershell -ExecutionPolicy Bypass -Command " & _
+        """Invoke-Command -ComputerName '" & computerName & "' -ScriptBlock { Install-PackageProvider -Name NuGet -Force; Install-Module -Name AudioDeviceCmdlets -Force -Scope AllUsers }"""
+      result = RunPowerShell(command)
+      document.getElementById("outputBox").value = "Module installation attempted:" & vbCrLf & result
+    End Sub
+
+    Sub VerifyModule
+      Dim computerName, command, result
+      computerName = document.getElementById("computerName").value
+      If computerName = "" Then
+        MsgBox "Please enter a computer name.", vbExclamation
+        Exit Sub
+      End If
+
+      command = "powershell -ExecutionPolicy Bypass -Command " & _
+        """Invoke-Command -ComputerName '" & computerName & "' -ScriptBlock { Get-Module -ListAvailable | Where-Object { $_.Name -eq 'AudioDeviceCmdlets' } }"""
+      result = RunPowerShell(command)
+      If result = "" Then
+        result = "Module not found on remote machine."
+      Else
+        result = "Module found:" & vbCrLf & result
+      End If
+      document.getElementById("outputBox").value = result
+    End Sub
+
+    Sub GetPlaybackDevices
+      Dim computerName, command, result
+      computerName = document.getElementById("computerName").value
+      If computerName = "" Then
+        MsgBox "Please enter a computer name.", vbExclamation
+        Exit Sub
+      End If
+
+      command = "powershell -ExecutionPolicy Bypass -Command " & _
+        """Invoke-Command -ComputerName '" & computerName & "' -ScriptBlock { Get-AudioDevice -List | Where-Object { $_.Type -eq 'Playback' } }"""
+      result = RunPowerShell(command)
+      document.getElementById("outputBox").value = result
+    End Sub
+
+    Sub SetDefaultDevice
+      Dim computerName, deviceName, command, result
+      computerName = document.getElementById("computerName").value
+      deviceName = document.getElementById("deviceName").value
+      If computerName = "" Or deviceName = "" Then
+        MsgBox "Please enter both computer name and device name.", vbExclamation
+        Exit Sub
+      End If
+
+      command = "powershell -ExecutionPolicy Bypass -Command " & _
+        """Invoke-Command -ComputerName '" & computerName & "' -ScriptBlock { " & _
+        "Import-Module AudioDeviceCmdlets; " & _
+        "$device = Get-AudioDevice -List | Where-Object { $_.Name -eq '" & deviceName & "' -and $_.Type -eq 'Playback' }; " & _
+        "if ($device) { Set-AudioDevice -Index $device.Index; Write-Output 'Device set as default.' } else { Write-Output 'Device not found.' } }"""
+      result = RunPowerShell(command)
+      document.getElementById("outputBox").value = result
+    End Sub
+  </script>
+</head>
+<body style="font-family:Segoe UI; background-color:lightblue; padding:20px;">
+<center>
+
+
+  <h2>Audio Output Manager</h2>
+  <label for="computerName">Enter Computer Name:</label><br>
+  <input type="text" id="computerName" style="width:300px; font-size:14px;"><br><br>
+
+  <button onclick="InstallModule" style="font-size:14px;">Install Module</button>
+  <button onclick="VerifyModule" style="font-size:14px;">Verify Module</button>
+  <button onclick="GetPlaybackDevices" style="font-size:14px;">List Playback Devices</button><br><br>
+
+  <label for="outputBox">Output:</label><br>
+  <textarea id="outputBox" rows="20" cols="80" style="font-family:Consolas; font-size:12px;"></textarea><br><br>
+
+  <label for="deviceName">Enter Device Name to Set as Default:</label><br>
+  <input type="text" id="deviceName" style="width:300px; font-size:14px;"><br><br>
+  <button onclick="SetDefaultDevice" style="font-size:14px;">Set Default Device</button>
+</center>
+</body>
+</html>
